@@ -1,0 +1,9 @@
+###
+POST http://localhost:8080/api/v1/quick-access
+Content-Type: application/json
+
+{
+    "url":"www.google.com.co/"
+}
+###
+GET http://localhost:8080/api/v1/quick-access/1

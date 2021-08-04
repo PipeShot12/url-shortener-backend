@@ -16,10 +16,8 @@ urlRouter.get('/:id', async (req, res) => {
 urlRouter.post('/', async (req, res, next) => {
   try {
     const { url } = req.body
-    const stringToUrl = new GetHost(url)
-
+    const stringToUrl = !url.startsWith('https://') ? new GetHost(`https://${url}`) : new GetHost(url)
     const urlFormatted = `${stringToUrl.hostname}${stringToUrl.pathname}`
-
     dns.lookup(stringToUrl.hostname, async (err, address) => {
       if (err) {
         res.status(400).json({ error: 'Invalid url' })
