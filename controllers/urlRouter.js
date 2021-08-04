@@ -2,6 +2,7 @@ const urlRouter = require('express').Router()
 const Url = require('../models/url')
 const getNextValue = require('../models/autoincrement')
 const dns = require('dns')
+const GetHost = require('url').URL
 
 urlRouter.get('/:id', async (req, res) => {
   const { id } = req.params
@@ -15,19 +16,15 @@ urlRouter.get('/:id', async (req, res) => {
 urlRouter.post('/', async (req, res, next) => {
   try {
     const { url } = req.body
-    const urlFormatted = url.startsWith('https://')
-      ? url.replace('https://', '')
-      : url.startsWith('http://')
-        ? url.replace('http://', '')
-        : url
+    const stringToUrl = new GetHost(url)
 
-    dns.lookup(urlFormatted, async (err, address) => {
+    const urlFormatted = `${stringToUrl?.hostname}${stringToUrl?.pathname}`
+
+    dns.lookup(stringToUrl?.hostname, async (err, address) => {
       if (err) {
         res.status(400).json({ error: 'Invalid url' })
       } else if (address) {
         const isSavedAlready = await Url.findOne({ original_url: urlFormatted })
-        console.log(isSavedAlready)
-        console.log(urlFormatted)
         if (isSavedAlready) {
           res.json(isSavedAlready)
         } else {
